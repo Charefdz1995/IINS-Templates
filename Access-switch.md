@@ -1,5 +1,7 @@
 # Access Security :
-In this lab, we are going to configure a Router on a Stick . where the Router will be a DHCP server, and the Switch is an access switch that contains two VLANs .
+In this lab, we are going to configure a Router on a Stick . where the Router will be a DHCP server, and the Switch is an access switch that contains two VLANs.
+
+![Router on a Stick Topology](images/Router%20on%20a%20Stick.png)
 
 ## Router Basic Configuration :
 ### 1. The creation of DHCP server for each VLAN :
