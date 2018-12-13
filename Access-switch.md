@@ -71,7 +71,7 @@ if the access switch goes down the snooping database will be deleted, so we have
 (config-if)# ip dhcp snooping trust
 ```
 
-### Interfaces configuration of each VLAN : 
+### 8. Interfaces configuration of each VLAN : 
 
 ```
 (config)# interface range fa0/2-12 
@@ -99,14 +99,14 @@ if the access switch goes down the snooping database will be deleted, so we have
 ```
 
 ## Using `IP Verify Source` with `Port Security` : 
-### Creation of DHCP class in the Router :
+### 1. Creation of DHCP class in the Router :
 
 ```
 (config)# ip dhcp class <class_name>
 (config)# relay agent information
 ```
 
-### Assigning the DHCP class to the DHCP server : 
+### 2. Assigning the DHCP class to the DHCP server : 
 
 ```
 (config)# ip dhcp pool <pool_name>
@@ -114,7 +114,7 @@ if the access switch goes down the snooping database will be deleted, so we have
 (config)# address range <range_begin> <range_end>
 ```
 
-### Make the Switch and Router trust end-devices with DHCP option 82 : 
+### 3. Make the Switch and Router trust end-devices with DHCP option 82 : 
 this command will make ip verify source port-security useful and operational.
 
 ```
