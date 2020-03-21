@@ -1,102 +1,124 @@
 # Access Security :
-In this lab we are going to configure a router on stick . where the router will be a DHCP server and the switch is an access switch that contains two vlans .
+In this lab, we are going to configure a Router on a Stick . where the Router will be a DHCP server, and the Switch is an access switch that contains two VLANs.
 
-## Router basic configuration :
-### The creation of DHCP server for each vlan :
-```
-(config)#ip dhcp pool <dhcp_pool_name>
-(config)#network <dhcp_pool_network> <dhcp_pool_netmask>
-(config)#default-router <default_gateway>
-```
-### The creation of subinterface for each vlan :
-```
-(config)#interface gigaEthernet0/0.<vlan_id> ! it's not mandatory to make it vlan_id
-(config-if)#no shutdown
-(config-if)#encapsulation dot1Q
-(config-if)#ip address <vlan_gateway> <netmask>
-```
+![Router on a Stick Topology](images/Router%20on%20a%20Stick.png)
 
-## Access switch basic configuration :
-### Commands to recover the port from errdisable :
-```
-(config)#errdisable recovery cause all 
-(config)#errdisable recovery interval 300
-```
-### The creation of vlans : 
-```
-(config)#vlan <vlan_id>
-(config-vlan)#name <vlan_name>
-```
-### Enabling dhcp snooping :
-```
-(config)#ip dhcp snooping vlan 
-(config)#ip dhcp snooping vlan [vlan_id]
-```
-### Enabling arp inspection :
-```
-(config)#ip arp inspection vlan [vlan_id]
-(config)#ip arp inspection validate dst-mac ip
-```
-### Removing the dhcp option 82 : 
-```
-(config)#no ip dhcp snooping information option 
-```
-### DHCP snooping database saving :
-if the access switch goes down the snooping database will be deleted so we have to save it :
-<br>
-save it in the file dhcp-snooping-database.txt every delay_in_sec 
-```
-(config)#ip dhcp snooping database flash:/dhcp-snooping-database.txt
-(config)#ip dhcp snooping database write-delay <dalay_in_sec> 
-```
-### Configuration interface to the DHCP Server : 
+## Router Basic Configuration :
+### 1. The creation of DHCP server for each VLAN :
 
 ```
-(config)#inter fastEthernet0/1
-(config-if)#description this link to the dhcp server
-(config-if)#switchport mode trunk 
-(config-if)#ip dhcp snooping trust
+(config)# ip dhcp pool <dhcp_pool_name>
+(config)# network <dhcp_pool_network> <dhcp_pool_netmask>
+(config)# default-router <default_gateway>
 ```
-### Configuration interfaces of each vlan : 
+
+### 2. The creation of sub-interface for each VLAN :
 
 ```
-(config)#inter range fa0/2-12 
-(config-if)#description this ports are for end-devices in vlan 10  
-(config-if)#no sh 
-(config-if)#switchport host
-(config-if)#switch mode access 
-(config-if)#switch access vlan 10
-(config-if)#spanning-tree portfast
-(config-if)#switchport port-security
-(config-if)#switchport port-sec max 3
-(config-if)#switchport port-sec violation sh vlan
-(config-if)#switchport port-sec aging type inactivity
-(config-if)#switchport port-sec aging time 30
-(config-if)#ip verify source port-security
-(config-if)#ip dhcp snooping limit rate 30
-(config-if)#ip arp inspection limit rate 30
-(config-if)#storm-control bro level 50 30
-(config-if)#storm-control mul level pps 30k 20k
-(config-if)#storm-control action trap
-(config-if)#storm-control action sh
-(config-if)#no lldp rec 
-(config-if)#no lldp tr 
-(config-if)#no cdp en
+(config)# interface gigaEthernet0/0.<vlan_id> ! it's not mandatory to make it vlan_id
+(config-if)# no shutdown
+(config-if)# encapsulation dot1Q
+(config-if)# ip address <vlan_gateway> <netmask>
 ```
-## Using ip verify source with port security : 
-### Creation of dhcp class :
+
+## Access Switch Basic Configuration :
+### 1. Commands to recover the port from *errdisable* :
+
 ```
-(config)#ip dhcp class <class_name>
-(config)#relay agent information
+(config)# errdisable recovery cause all 
+(config)# errdisable recovery interval 300
 ```
-### Assign the dhcp class to the dhcp server : 
+
+### 2. The creation of VLANs : 
+
 ```
-(config)#ip dhcp pool <pool_name>
-(config)#class <class_name>
-(config)#address range <range_begin> <range_end>
+(config)# vlan <vlan_id>
+(config-vlan)# name <vlan_name>
 ```
-### Make the switch and router trust end-devices with dhcp option 82 : 
-this command will make ip verify source port-security useful and operational 
+
+### 3. Enabling DHCP Snooping :
+
 ```
-(config)#ip dhcp relay information trust-all
+(config)# ip dhcp snooping 
+(config)# ip dhcp snooping vlan <vlan_id>
+```
+
+### 4. Enabling ARP Inspection :
+
+```
+(config)# ip arp inspection vlan <vlan_id>
+(config)# ip arp inspection validate dst-mac ip
+```
+
+### 5. Removing the DHCP option 82 : 
+
+```
+(config)# no ip dhcp snooping information option 
+```
+
+### 6. DHCP Snooping database saving :
+if the access switch goes down the snooping database will be deleted, so we have to save it.
+
+```
+(config)# ip dhcp snooping database flash:/dhcp-snooping-database.txt
+(config)# ip dhcp snooping database write-delay <dalay_in_sec> 
+```
+
+### 7. DHCP Server's Interface configuration : 
+
+```
+(config)# interface fastEthernet0/1
+(config-if)# description this link to the dhcp server
+(config-if)# switchport mode trunk 
+(config-if)# ip dhcp snooping trust
+```
+
+### 8. Interfaces configuration of each VLAN : 
+
+```
+(config)# interface range fa0/2-12 
+(config-if)# description this ports are for end-devices in vlan 10  
+(config-if)# no shutdown 
+(config-if)# switchport host
+(config-if)# switchport mode access 
+(config-if)# switchport access vlan 10
+(config-if)# spanning-tree portfast
+(config-if)# switchport port-security
+(config-if)# switchport port-security max 3
+(config-if)# switchport port-security violation shutdown vlan
+(config-if)# switchport port-security aging type inactivity
+(config-if)# switchport port-security aging time 30
+(config-if)# ip verify source port-security
+(config-if)# ip dhcp snooping limit rate 30
+(config-if)# ip arp inspection limit rate 30
+(config-if)# storm-control broadcast level 50 30
+(config-if)# storm-control multicast level pps 30k 20k
+(config-if)# storm-control action trap
+(config-if)# storm-control action shutdown
+(config-if)# no lldp receive
+(config-if)# no lldp transmit 
+(config-if)# no cdp enable
+```
+
+## Using `IP Verify Source` with `Port Security` : 
+### 1. Creation of DHCP class in the Router :
+
+```
+(config)# ip dhcp class <class_name>
+(config)# relay agent information
+```
+
+### 2. Assigning the DHCP class to the DHCP server : 
+
+```
+(config)# ip dhcp pool <pool_name>
+(config)# class <class_name>
+(config)# address range <range_begin> <range_end>
+```
+
+### 3. Make the Switch and Router trust end-devices with DHCP option 82 : 
+this command will make ip verify source port-security useful and operational.
+
+```
+(config)# ip dhcp relay information trust-all
 ```
